@@ -1,0 +1,636 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Nota</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Newsreader:opsz,wght@6..72,400;6..72,500&family=Plus+Jakarta+Sans:wght@400;500;600&display=swap" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" rel="stylesheet" />
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            colors: {
+              primary: "#1c2ac8",
+              "primary-container": "#3b49df",
+              "on-primary": "#ffffff",
+              "primary-fixed": "#e0e0ff",
+              "on-primary-fixed": "#000668",
+              secondary: "#904d00",
+              "secondary-fixed": "#ffdcc3",
+              "on-secondary-container": "#663500",
+              tertiary: "#005122",
+              "tertiary-container": "#006c30",
+              surface: "#faf9fb",
+              "surface-container-low": "#f5f3f5",
+              "surface-container": "#efedf0",
+              "surface-container-high": "#e9e8ea",
+              "surface-container-highest": "#e3e2e4",
+              "surface-container-lowest": "#ffffff",
+              "on-surface": "#1b1c1e",
+              "on-surface-variant": "#454655",
+              outline: "#757687",
+              "outline-variant": "#c6c5d8",
+              error: "#ba1a1a",
+              "error-container": "#ffdad6",
+              "on-error-container": "#93000a",
+            },
+            fontFamily: {
+              headline: ["Newsreader", "Songti SC", "serif"],
+              body: ["Plus Jakarta Sans", "PingFang SC", "sans-serif"],
+            },
+          },
+        },
+      };
+    </script>
+    <style>
+      .material-symbols-outlined { font-variation-settings: "FILL" 0, "wght" 400, "GRAD" 0, "opsz" 24; }
+      body { font-family: "Plus Jakarta Sans", "PingFang SC", sans-serif; }
+    </style>
+  </head>
+  <body class="bg-surface text-on-surface antialiased">
+    <aside class="fixed left-0 top-0 hidden h-full w-60 flex-col justify-between bg-surface-container-low md:flex">
+      <div>
+        <div class="flex h-14 items-center justify-between px-5">
+          <div class="flex items-center gap-2.5">
+            <div class="flex h-7 w-7 items-center justify-center rounded-lg bg-primary-container text-on-primary">
+              <span class="material-symbols-outlined text-[18px]">graphic_eq</span>
+            </div>
+            <span class="font-headline text-xl">Nota</span>
+          </div>
+          <span class="rounded bg-surface-container px-1.5 py-0.5 text-[11px] font-semibold tracking-wide text-on-surface-variant">AI</span>
+        </div>
+        <div class="px-3 pb-4 pt-2">
+          <button class="flex w-full items-center gap-2 rounded-lg bg-primary-container px-3 py-2 text-on-primary" id="new-note" type="button">
+            <span class="material-symbols-outlined text-[18px]">mic</span>
+            <span class="text-sm font-semibold">新建便签</span>
+          </button>
+        </div>
+        <nav class="space-y-0.5 px-3" id="nav">
+          <button class="nav-item flex w-full items-center gap-2.5 rounded-lg bg-surface-container-highest px-3 py-2 text-left text-sm font-semibold" data-view="all" type="button">
+            <span class="material-symbols-outlined text-[18px]">drafts</span>全部记录
+          </button>
+          <button class="nav-item flex w-full items-center gap-2.5 rounded-lg px-3 py-2 text-left text-sm text-on-surface-variant" data-view="todos" type="button">
+            <span class="material-symbols-outlined text-[18px]">check_circle</span>待办事项
+          </button>
+          <button class="nav-item flex w-full items-center gap-2.5 rounded-lg px-3 py-2 text-left text-sm text-on-surface-variant" data-view="reminders" type="button">
+            <span class="material-symbols-outlined text-[18px]">alarm</span>提醒
+          </button>
+        </nav>
+        <div class="px-3 pt-6">
+          <div class="flex items-center justify-between px-3 pb-2">
+            <span class="text-[11px] font-semibold uppercase tracking-wider text-outline">近期记录</span>
+            <span class="material-symbols-outlined text-[16px] text-outline">history</span>
+          </div>
+          <div class="space-y-0.5" id="recent"></div>
+        </div>
+      </div>
+      <div class="px-3 pb-4">
+        <div class="flex items-center gap-2.5 rounded-lg px-3 py-2">
+          <div class="flex h-8 w-8 items-center justify-center rounded-full bg-primary text-on-primary">
+            <span class="material-symbols-outlined text-[18px]">person</span>
+          </div>
+          <div>
+            <div class="text-xs font-medium">Free</div>
+            <div class="text-[11px] text-outline" id="side-quota">今日 0 / 10</div>
+          </div>
+        </div>
+      </div>
+    </aside>
+
+    <div class="md:pl-60">
+      <header class="sticky top-0 z-30 flex h-14 items-center justify-between gap-4 bg-surface/80 px-4 backdrop-blur-xl md:px-6">
+        <div class="flex min-w-0 flex-1 items-center gap-2 rounded-lg bg-surface-container-low px-3 py-1.5 text-on-surface-variant md:max-w-sm">
+          <span class="material-symbols-outlined text-[18px] text-outline">search</span>
+          <input class="w-full bg-transparent text-sm outline-none placeholder:text-outline" id="search" placeholder="搜索笔记、待办" type="search" />
+        </div>
+        <div class="text-xs text-outline" id="header-quota">今日已用 0 / 10</div>
+      </header>
+
+      <main class="min-h-screen px-4 pb-12 pt-2 md:px-8">
+        <div class="mb-4 flex items-center justify-between gap-3 text-xs text-outline">
+          <span id="status-line">工作台就绪</span>
+          <div class="flex gap-2 md:hidden">
+            <button class="mobile-nav rounded-lg bg-surface-container px-2 py-1" data-view="all" type="button">记录</button>
+            <button class="mobile-nav rounded-lg bg-surface-container px-2 py-1" data-view="todos" type="button">待办</button>
+            <button class="mobile-nav rounded-lg bg-surface-container px-2 py-1" data-view="reminders" type="button">提醒</button>
+          </div>
+          <span id="speech-line">可以直接打字</span>
+        </div>
+
+        <div class="grid grid-cols-12 items-start gap-8" id="workspace">
+          <section class="col-span-12 flex flex-col gap-6 lg:col-span-5">
+            <div>
+              <div class="mb-1 flex items-center gap-2 text-[11px] font-semibold uppercase tracking-wider text-primary">
+                <span class="material-symbols-outlined text-[15px]">sensors</span>
+                <span>Voice &amp; Idea Capture</span>
+              </div>
+              <h1 class="font-headline text-3xl tracking-tight md:text-[32px] md:leading-10">有什么事，先记下来。</h1>
+              <p class="mt-1.5 text-[15px] leading-6 text-on-surface-variant">说出来，Nota 帮你整理摘要，并记下待办和提醒。</p>
+            </div>
+
+            <div class="flex flex-col gap-2">
+              <span class="text-[11px] text-outline">试试快捷填充</span>
+              <button class="preset flex w-full items-start gap-2.5 rounded-xl bg-surface-container-low p-3 text-left shadow-sm" data-text="下周三下午三点约张总吃饭，提前一天提醒我" type="button">
+                <span class="material-symbols-outlined mt-0.5 text-[18px] text-primary">schedule_send</span>
+                <span class="min-w-0">
+                  <span class="block truncate text-sm">下周三下午三点约张总吃饭，提前一天提醒我</span>
+                  <span class="mt-0.5 block text-[11px] text-outline">包含提醒和待办</span>
+                </span>
+              </button>
+              <button class="preset flex w-full items-start gap-2.5 rounded-xl bg-surface-container-low p-3 text-left shadow-sm" data-text="下周三约张总吃饭是几点？提醒设在哪天？" type="button">
+                <span class="material-symbols-outlined mt-0.5 text-[18px] text-secondary">forum</span>
+                <span class="min-w-0">
+                  <span class="block truncate text-sm">下周三约张总吃饭是几点？提醒设在哪天？</span>
+                  <span class="mt-0.5 block text-[11px] text-outline">会先查询历史记录再回答</span>
+                </span>
+              </button>
+            </div>
+
+            <form class="flex flex-col gap-4 rounded-2xl bg-surface-container-lowest p-5 shadow-sm" id="form">
+              <div class="flex items-center justify-between">
+                <div class="flex items-center gap-2">
+                  <span class="h-2 w-2 rounded-full bg-primary" id="recording-dot"></span>
+                  <span class="text-xs font-semibold" id="input-mode">文字输入</span>
+                </div>
+                <div class="flex items-center gap-1.5">
+                  <span class="rounded bg-surface-container px-2 py-0.5 text-[11px] text-on-surface-variant" id="char-count">0 字符</span>
+                  <button class="rounded p-1 text-outline" id="clear-input" type="button" aria-label="清空">
+                    <span class="material-symbols-outlined text-[16px]">close</span>
+                  </button>
+                </div>
+              </div>
+              <label class="sr-only" for="text">内容</label>
+              <textarea class="min-h-36 w-full resize-none bg-transparent text-[15px] leading-7 outline-none placeholder:text-outline/60" id="text" placeholder="在此输入，或点下面的麦克风说话" rows="6"></textarea>
+              <div class="hidden h-9 items-end gap-[3px] overflow-hidden rounded-xl bg-surface-container-low px-3" id="waveform"></div>
+              <div class="flex items-center justify-between pt-1">
+                <button class="flex items-center gap-2 rounded-xl bg-surface-container px-3.5 py-2 text-sm font-medium" id="speak" type="button">
+                  <span class="material-symbols-outlined text-[18px]">mic</span>
+                  <span id="speak-label">说话</span>
+                </button>
+                <button class="flex items-center gap-2 rounded-xl bg-primary px-4 py-2 text-sm font-semibold text-on-primary shadow-md disabled:cursor-not-allowed disabled:bg-surface-container-highest disabled:text-outline disabled:shadow-none" id="submit" type="submit" disabled>
+                  <span class="material-symbols-outlined text-[18px]">auto_awesome</span>
+                  <span id="submit-label">发送</span>
+                </button>
+              </div>
+            </form>
+            <p class="min-h-5 text-sm text-on-surface-variant" id="message" role="status"></p>
+          </section>
+
+          <section class="col-span-12 flex flex-col gap-6 lg:col-span-7" id="result"></section>
+        </div>
+
+        <section class="hidden" id="list-view"></section>
+      </main>
+    </div>
+
+    <script>
+      const userId = "nota-demo-user-001";
+      localStorage.setItem("notaUserId", userId);
+      const state = { notes: [], usage: { count: 0, limit: 10 }, view: "all", selectedId: null, pendingId: null, busy: false, draft: "", composing: false };
+      const text = document.querySelector("#text");
+      const message = document.querySelector("#message");
+      const Speech = window.SpeechRecognition || window.webkitSpeechRecognition;
+      let recognition = null;
+      let listening = false;
+      let seconds = 0;
+      let timer = null;
+
+      if (!Speech) document.querySelector("#speak").disabled = true;
+
+      document.querySelector("#form").addEventListener("submit", onSubmit);
+      document.querySelector("#speak").addEventListener("click", toggleSpeech);
+      document.querySelector("#clear-input").addEventListener("click", () => { text.value = ""; updateCount(); });
+      document.querySelector("#new-note").addEventListener("click", newNote);
+      document.querySelector("#search").addEventListener("input", render);
+      text.addEventListener("input", updateCount);
+      document.querySelectorAll(".preset").forEach((button) => {
+        button.addEventListener("click", () => {
+          text.value = button.dataset.text;
+          updateCount();
+          text.focus();
+        });
+      });
+      document.querySelectorAll(".nav-item, .mobile-nav").forEach((button) => {
+        button.addEventListener("click", () => {
+          state.view = button.dataset.view;
+          render();
+        });
+      });
+
+      async function onSubmit(event) {
+        event.preventDefault();
+        const selected = state.composing ? null : state.notes.find((note) => note.id === state.selectedId);
+        const continuing = !state.composing && needsReply(selected) && state.view === "all";
+        document.querySelector("#submit-label").textContent = "发送";
+        const value = text.value.trim();
+        if (!value || state.busy) return;
+        if (!continuing) state.pendingId = state.pendingId || createId();
+        state.busy = true;
+        state.draft = value;
+        syncSubmit();
+        showLoading(value, continuing ? selected : null);
+        message.textContent = "";
+        let failed = false;
+        try {
+          const response = continuing
+            ? await fetch(`/api/notes/${selected.id}/reply`, {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ userId, text: value }),
+            })
+            : await fetch("/api/notes", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ userId, requestId: state.pendingId, text: value }),
+            });
+          const body = await response.json();
+          if (!response.ok) {
+            failed = true;
+            if (!continuing && response.status !== 502) state.pendingId = null;
+            message.textContent = body.error || "整理失败";
+            if (body.usage) showUsage(body.usage);
+            return;
+          }
+          state.pendingId = null;
+          state.composing = false;
+          state.selectedId = body.id;
+          state.view = "all";
+          text.value = "";
+          updateCount();
+          message.textContent = body.status === "asking" ? "还需要补充，这次回复不另扣次数。" : "";
+          state.busy = false;
+          state.draft = "";
+          await refresh();
+        } catch {
+          failed = true;
+          message.textContent = continuing
+            ? "网络中断。再发一次即可。"
+            : "网络中断。再点一次会沿用同一个单号，不会重复扣次数。";
+        } finally {
+          state.busy = false;
+          state.draft = "";
+          if (failed) render();
+          const current = state.notes.find((note) => note.id === state.selectedId);
+          document.querySelector("#submit-label").textContent = "发送";
+          syncSubmit();
+        }
+      }
+
+      function toggleSpeech() {
+        if (!Speech) return;
+        if (listening) {
+          recognition.stop();
+          return;
+        }
+        recognition = new Speech();
+        recognition.lang = "zh-CN";
+        recognition.onstart = () => setListening(true);
+        recognition.onend = () => setListening(false);
+        recognition.onresult = (event) => {
+          text.value = event.results[0][0].transcript;
+          updateCount();
+        };
+        recognition.onerror = () => {
+          message.textContent = "没有听清。可以直接打字。";
+          setListening(false);
+        };
+        recognition.start();
+      }
+
+      function setListening(on) {
+        listening = on;
+        document.querySelector("#speak-label").textContent = on ? "停止" : "说话";
+        document.querySelector("#input-mode").textContent = on ? "正在听" : "文字输入";
+        document.querySelector("#speech-line").textContent = on ? "正在听…" : "可以直接打字";
+        document.querySelector("#recording-dot").className = on
+          ? "h-2 w-2 rounded-full bg-error"
+          : "h-2 w-2 rounded-full bg-primary";
+        buildWave(on);
+        clearInterval(timer);
+        seconds = 0;
+        if (on) timer = setInterval(() => { seconds += 1; }, 1000);
+      }
+
+      function newNote() {
+        state.composing = true;
+        state.selectedId = null;
+        state.pendingId = null;
+        state.view = "all";
+        text.value = "";
+        updateCount();
+        message.textContent = "新的一条对话。";
+        render();
+        text.focus();
+      }
+
+      async function refresh() {
+        const [usage, notes] = await Promise.all([
+          fetch(`/api/usage?userId=${userId}`).then((response) => response.json()),
+          fetch(`/api/notes?userId=${userId}`).then((response) => response.json()),
+        ]);
+        state.usage = usage;
+        state.notes = notes;
+        if (!state.composing && !state.selectedId && notes[0]) state.selectedId = notes[0].id;
+        showUsage(usage);
+        render();
+      }
+
+      function showUsage(usage) {
+        const label = `今日已用 ${usage.count} / ${usage.limit}`;
+        document.querySelector("#header-quota").textContent = label;
+        document.querySelector("#side-quota").textContent = `今日 ${usage.count} / ${usage.limit}`;
+        document.querySelector("#status-line").textContent = "工作台就绪";
+      }
+
+      function render() {
+        const query = document.querySelector("#search").value.trim();
+        const notes = state.notes.filter((note) => matches(note, query));
+        document.querySelectorAll(".nav-item").forEach((button) => {
+          const active = button.dataset.view === state.view;
+          button.className = active
+            ? "nav-item flex w-full items-center gap-2.5 rounded-lg bg-surface-container-highest px-3 py-2 text-left text-sm font-semibold"
+            : "nav-item flex w-full items-center gap-2.5 rounded-lg px-3 py-2 text-left text-sm text-on-surface-variant";
+        });
+        document.querySelector("#recent").innerHTML = notes.slice(0, 8).map((note) => `
+          <button class="recent flex w-full flex-col rounded-lg px-3 py-2 text-left ${note.id === state.selectedId ? "bg-surface-container-highest" : ""}" data-id="${escapeHtml(note.id)}" type="button">
+            <span class="truncate text-sm">${escapeHtml(titleOf(note))}</span>
+            <span class="mt-0.5 text-[11px] text-outline">${escapeHtml(note.usage?.day || "")}</span>
+          </button>`).join("") || `<p class="px-3 text-xs text-outline">还没有记录</p>`;
+        document.querySelectorAll(".recent").forEach((button) => {
+          button.addEventListener("click", () => {
+            state.composing = false;
+            state.selectedId = button.dataset.id;
+            state.view = "all";
+            render();
+          });
+        });
+
+        const workspace = document.querySelector("#workspace");
+        const list = document.querySelector("#list-view");
+        if (state.view === "all") {
+          workspace.classList.remove("hidden");
+          list.classList.add("hidden");
+          const shown = state.composing
+            ? null
+            : notes.find((note) => note.id === state.selectedId) || notes[0];
+          document.querySelector("#result").innerHTML = state.busy
+            ? loadingMarkup(state.draft, needsReply(shown) ? shown : null)
+            : renderResult(shown);
+          if (!state.busy) {
+            document.querySelector("#submit-label").textContent = "发送";
+          }
+          scrollDialogue();
+          return;
+        }
+        workspace.classList.add("hidden");
+        list.classList.remove("hidden");
+        list.innerHTML = state.view === "todos" ? renderTodos(notes) : renderReminders(notes);
+      }
+
+      function showLoading(value, note) {
+        document.querySelector("#result").innerHTML = loadingMarkup(value, note);
+        scrollDialogue();
+      }
+
+      function scrollDialogue() {
+        document.querySelectorAll(".dialogue-scroll").forEach((element) => {
+          element.scrollTop = element.scrollHeight;
+        });
+      }
+
+      function loadingMarkup(value, note) {
+        const previous = note ? renderDialogue(note) : "";
+        return `
+          <div class="flex flex-col gap-4 rounded-2xl bg-surface-container-lowest p-6 shadow-sm">
+            <span class="w-fit rounded-full bg-surface-container-high px-2 py-0.5 text-[11px] font-semibold text-on-surface-variant">正在整理</span>
+            <div class="dialogue-scroll flex max-h-[66vh] flex-col gap-2.5 overflow-y-auto pr-1">
+              ${previous}
+              <div class="ml-10 rounded-xl bg-primary-fixed px-3 py-2">
+                <p class="text-[13px] leading-5">${escapeHtml(value)}</p>
+              </div>
+              <div class="mr-10 rounded-xl bg-surface-container-low px-3 py-2">
+                <p class="flex items-center gap-2 text-[13px] leading-5 text-on-surface-variant">
+                  <span class="inline-block h-3.5 w-3.5 animate-spin rounded-full border-2 border-outline-variant border-t-primary"></span>
+                  正在整理…
+                </p>
+              </div>
+            </div>
+          </div>`;
+      }
+
+      function renderResult(note) {
+        if (!note) {
+          return `<div class="rounded-2xl bg-surface-container-lowest p-8 text-on-surface-variant shadow-sm">整理之后，摘要、待办和提醒会出现在这里。</div>`;
+        }
+        const tools = (note.trace || []).filter((item) => item.ok).map((item) => toolLabel(item.tool)).filter(Boolean);
+        const dialogue = renderDialogue(note);
+        if (needsReply(note)) {
+          return `
+            <div class="flex flex-col gap-4 rounded-2xl bg-surface-container-lowest p-6 shadow-sm">
+              <span class="w-fit rounded-full bg-secondary-fixed px-2 py-0.5 text-[11px] font-semibold text-on-secondary-container">还需要补充</span>
+              <div class="dialogue-scroll flex max-h-[66vh] flex-col gap-2.5 overflow-y-auto pr-1">${dialogue}</div>
+              <p class="text-sm text-outline">点 Nota 消息下的回复，或在左边输入。这一轮不另扣次数。</p>
+            </div>`;
+        }
+        return `
+          <div class="flex flex-col gap-6 rounded-2xl bg-surface-container-lowest p-6 shadow-sm">
+            <div>
+              <span class="rounded-full bg-primary-fixed px-2 py-0.5 text-[11px] font-semibold text-on-primary-fixed">整理完成</span>
+              <h2 class="mt-2 font-headline text-2xl">${escapeHtml(titleOf(note))}</h2>
+            </div>
+            <div class="dialogue-scroll flex max-h-[66vh] flex-col gap-2.5 overflow-y-auto pr-1">${dialogue}</div>
+            <div class="rounded-xl bg-surface-container-low p-4">
+              <div class="mb-2 flex items-center justify-between">
+                <div class="flex items-center gap-2 text-sm font-semibold"><span class="material-symbols-outlined text-[18px] text-primary">notes</span>核心摘要</div>
+                <button class="text-xs text-primary" id="copy-summary" type="button">复制摘要</button>
+              </div>
+              <p class="text-[15px] leading-7 text-on-surface-variant">${escapeHtml(note.summary || "")}</p>
+            </div>
+            <div>
+              <div class="mb-3 flex items-center gap-2 text-sm font-semibold"><span class="material-symbols-outlined text-[18px] text-tertiary">check_circle</span>待办事项清单<span class="rounded-full bg-surface-container-high px-2 text-[11px] font-normal text-on-surface-variant">${(note.todos || []).length} 条</span></div>
+              <div class="space-y-2.5">${(note.todos || []).map((item) => `
+                <div class="rounded-xl bg-surface-container-low p-3.5 text-[15px]">${escapeHtml(item.content)}</div>`).join("") || `<p class="text-sm text-outline">这条没有待办</p>`}
+              </div>
+            </div>
+          </div>
+          <div class="rounded-2xl bg-surface-container-lowest p-6 shadow-sm">
+            <h3 class="font-headline text-xl">Nota 已经帮你记下</h3>
+            <p class="mt-1 text-sm text-outline">${tools.length ? `用到的工具：${escapeHtml(tools.join("、"))}` : "这次没有调用工具"}</p>
+            <div class="mt-4 grid grid-cols-1 gap-3 md:grid-cols-2">
+              ${(note.reminders || []).map((item) => `
+                <div class="rounded-xl bg-surface-container-low p-4">
+                  <span class="material-symbols-outlined text-secondary">alarm_on</span>
+                  <h4 class="mt-2 text-sm font-semibold">提醒</h4>
+                  <p class="mt-1 text-sm text-on-surface-variant">${escapeHtml(item.remindAt)} ${escapeHtml(item.content)}</p>
+                </div>`).join("")}
+              <div class="rounded-xl bg-surface-container-low p-4">
+                <span class="material-symbols-outlined text-primary">check_circle</span>
+                <h4 class="mt-2 text-sm font-semibold">待办</h4>
+                <p class="mt-1 text-sm text-on-surface-variant">已写入 ${(note.todos || []).length} 条</p>
+              </div>
+            </div>
+          </div>`;
+      }
+
+      function renderTodos(notes) {
+        const items = notes.flatMap((note) => (note.todos || []).map((todo) => ({ ...todo, title: titleOf(note) })));
+        if (!items.length) return empty("还没有待办");
+        return `<h2 class="mb-4 font-headline text-3xl">待办事项</h2><div class="space-y-2.5">${items.map((item) => `
+          <div class="rounded-xl bg-surface-container-lowest p-4 shadow-sm">
+            <div class="text-[15px]">${escapeHtml(item.content)}</div>
+            <div class="mt-1 text-[11px] text-outline">${escapeHtml(item.title)}</div>
+          </div>`).join("")}</div>`;
+      }
+
+      function renderReminders(notes) {
+        const items = notes.flatMap((note) => (note.reminders || []).map((item) => ({ ...item, title: titleOf(note) })));
+        if (!items.length) return empty("还没有提醒");
+        return `<h2 class="mb-4 font-headline text-3xl">提醒</h2><div class="space-y-2.5">${items.map((item) => `
+          <div class="rounded-xl bg-surface-container-lowest p-4 shadow-sm">
+            <div class="text-[15px]">${escapeHtml(item.remindAt)} ${escapeHtml(item.content)}</div>
+            <div class="mt-1 text-[11px] text-outline">${escapeHtml(item.title)}</div>
+          </div>`).join("")}</div>`;
+      }
+
+      function empty(label) {
+        return `<div class="rounded-2xl bg-surface-container-lowest p-8 text-on-surface-variant shadow-sm">${label}</div>`;
+      }
+
+      document.addEventListener("click", (event) => {
+        const replyButton = event.target.closest("[data-reply]");
+        if (replyButton) {
+          text.value = replyButton.dataset.reply;
+          updateCount();
+          document.querySelector("#form").requestSubmit();
+          return;
+        }
+        if (event.target.id !== "copy-summary") return;
+        const note = state.notes.find((item) => item.id === state.selectedId) || state.notes[0];
+        if (note?.summary) navigator.clipboard.writeText(note.summary);
+      });
+
+      function renderDialogue(note) {
+        const messages = note.messages?.length
+          ? note.messages
+          : (note.summary ? [{ role: "assistant", content: note.summary }] : []);
+        let lastAssistant = -1;
+        messages.forEach((item, index) => {
+          if (item.role === "assistant") lastAssistant = index;
+        });
+        return messages.map((item, index) => {
+          const replies = item.role === "assistant" && index === lastAssistant && needsReply(note)
+            ? quickReplies(note)
+            : [];
+          const buttons = replies.map((reply) => `
+            <button class="quick-reply rounded-lg border border-primary/20 bg-primary-fixed px-3 py-1.5 text-sm font-medium text-on-primary-fixed" data-reply="${escapeAttr(reply)}" type="button">${escapeHtml(reply)}</button>`).join("");
+          return `
+            <div class="${item.role === "user" ? "ml-10 bg-primary-fixed" : "mr-10 bg-surface-container-low"} rounded-xl px-3 py-2">
+              <p class="text-[13px] leading-5">${escapeHtml(item.content)}</p>
+              ${buttons ? `<div class="mt-2 flex flex-wrap gap-2">${buttons}</div>` : ""}
+            </div>`;
+        }).join("");
+      }
+
+      function quickReplies(note) {
+        const last = [...(note.messages || [])].reverse().find((item) => item.role === "assistant");
+        const question = last?.content || note.summary || "";
+        const earlier = (note.messages || []).map((item) => item.content).join("");
+        const replies = [];
+        const asksTime = /几点|什么时候|何时/.test(question);
+        const asksReminder = /提醒/.test(question);
+        const hintText = /比如|例如/.test(question) ? question.split(/比如|例如/).pop() : question;
+        const suggested = asksReminder
+          ? hintText.match(/([0-9]{1,2}|[一二两三四五六七八九十]{1,3})\s*点\s*([0-9]{1,2}|[一二三四五六七八九十]{1,2})?\s*分?/)
+          : null;
+        if (asksTime) {
+          const period = /下午/.test(question + earlier) ? "下午" : /上午/.test(question + earlier) ? "上午" : "";
+          for (const hour of ["2点", "3点", "4点"]) {
+            replies.push(asksReminder ? `${period}${hour}，要提醒` : `${period}${hour}`);
+          }
+        }
+        if (asksReminder) {
+          if (suggested) {
+            const minute = suggested[2] ? `${suggested[1]}点${suggested[2]}` : `${suggested[1]}点`;
+            replies.unshift(`要，${minute}提醒`);
+          } else if (!asksTime) {
+            replies.push("要提醒");
+          }
+          replies.push("不用提醒");
+        }
+        return [...new Set(replies)];
+      }
+
+      function needsReply(note) {
+        if (!note) return false;
+        if (note.status === "asking") return true;
+        const last = [...(note.messages || [])].reverse().find((item) => item.role === "assistant");
+        return /[？?]/.test(last?.content || note.summary || "");
+      }
+
+      function matches(note, query) {
+        if (!query) return true;
+        const blob = [note.summary, note.text, ...(note.todos || []).map((item) => item.content), ...(note.reminders || []).map((item) => item.content)].join(" ");
+        return blob.includes(query);
+      }
+
+      function titleOf(note) {
+        return (note.summary || note.text || "未命名").slice(0, 28);
+      }
+
+      function toolLabel(name) {
+        if (name === "create_todo") return "创建待办";
+        if (name === "set_reminder") return "设置提醒";
+        if (name === "search_history") return "查询历史";
+        return "";
+      }
+
+      function updateCount() {
+        document.querySelector("#char-count").textContent = `${text.value.length} 字符`;
+        syncSubmit();
+      }
+
+      function syncSubmit() {
+        const submit = document.querySelector("#submit");
+        const empty = !text.value.trim();
+        submit.disabled = state.busy || empty;
+        if (state.busy) document.querySelector("#submit-label").textContent = "发送中…";
+      }
+
+      function buildWave(active) {
+        const box = document.querySelector("#waveform");
+        if (!active) {
+          box.classList.add("hidden");
+          box.classList.remove("flex");
+          box.innerHTML = "";
+          return;
+        }
+        box.classList.remove("hidden");
+        box.classList.add("flex");
+        box.innerHTML = Array.from({ length: 28 }, () => {
+          const height = 6 + Math.floor(Math.random() * 22);
+          return `<span class="w-1 rounded-full bg-primary" style="height:${height}px"></span>`;
+        }).join("");
+      }
+
+      function createId() {
+        const bytes = crypto.getRandomValues(new Uint8Array(16));
+        return [...bytes].map((byte) => byte.toString(16).padStart(2, "0")).join("");
+      }
+
+      function escapeHtml(value) {
+        return String(value).replaceAll("&", "&amp;").replaceAll("<", "&lt;").replaceAll(">", "&gt;");
+      }
+
+      function escapeAttr(value) {
+        return escapeHtml(value).replaceAll('"', "&quot;");
+      }
+
+      updateCount();
+      refresh();
+    </script>
+  </body>
+</html>

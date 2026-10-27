@@ -1,0 +1,21 @@
+{
+  "expo": {
+    "name": "Nota",
+    "slug": "nota",
+    "scheme": "nota",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "userInterfaceStyle": "light",
+    "newArchEnabled": true,
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "com.nota.app"
+    },
+    "android": {
+      "package": "com.nota.app"
+    },
+    "plugins": [
+      "expo-status-bar"
+    ]
+  }
+}
